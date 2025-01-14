@@ -7,7 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <script>
         // ข้อมูลด่าน
-        const levels = [
+        let levels = [
             { numbers: [3, 3, 8, 8] },
             { numbers: [2, 4, 6, 8] },
             { numbers: [1, 4, 6, 6] },
@@ -30,6 +30,14 @@
             { numbers: [3, 5, 6, 8] }
         ];
 
+        // สุ่มลำดับด่าน
+        function shuffleLevels() {
+            for (let i = levels.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [levels[i], levels[j]] = [levels[j], levels[i]];
+            }
+        }
+
         let currentLevel = 0;
         let timeLeft = 180;
         let timer;
@@ -43,21 +51,28 @@
 
         function evaluateExpression(expression) {
             try {
-                expression = expression.replace(/\s+/g, '').replace(/=/g, '');
-                const numbers = expression.match(/\d+/g)?.map(Number) || [];
-                const operators = expression.match(/[\+\-\*\/]/g) || [];
-                
-                if (numbers.length !== 4 || operators.length !== 3) {
-                    return { isValid: false, message: 'กรุณาใช้ตัวเลขทั้ง 4 ตัว' };
+                // ลบช่องว่างและตรวจสอบว่ามีแค่ตัวเลขและเครื่องหมายคูณ
+                expression = expression.replace(/\s+/g, '');
+                if (!/^[\d\*]+$/.test(expression)) {
+                    return { isValid: false, message: 'กรุณาใช้เฉพาะตัวเลขและเครื่องหมายคูณ (*)' };
                 }
 
-                const sortedInput = [...numbers].sort((a, b) => a - b);
-                const sortedLevel = [...levels[currentLevel].numbers].sort((a, b) => a - b);
+                const numbers = expression.match(/\d+/g)?.map(Number) || [];
+                const operators = expression.match(/\*/g) || [];
                 
-                if (JSON.stringify(sortedInput) !== JSON.stringify(sortedLevel)) {
+                // ตรวจสอบจำนวนตัวเลขและเครื่องหมาย
+                if (numbers.length !== 2) {
+                    return { isValid: false, message: 'กรุณาใช้ตัวเลข 2 ตัวที่คูณกันได้ 24' };
+                }
+
+                // ตรวจสอบว่าตัวเลขที่ใช้อยู่ในโจทย์
+                const currentNumbers = levels[currentLevel].numbers;
+                const validNumbers = numbers.every(num => currentNumbers.includes(num));
+                if (!validNumbers) {
                     return { isValid: false, message: 'กรุณาใช้ตัวเลขที่กำหนดให้เท่านั้น' };
                 }
 
+                // คำนวณผลลัพธ์
                 const result = eval(expression);
                 
                 if (Math.abs(result - 24) < 0.000001) {
@@ -134,6 +149,7 @@
         }
 
         window.onload = function() {
+            shuffleLevels(); // สุ่มลำดับด่านเมื่อเริ่มเกม
             updateGame();
             
             document.getElementById('answer-input').addEventListener('keypress', function(e) {
@@ -183,7 +199,7 @@
                     <input
                         type="text"
                         id="answer-input"
-                        placeholder="ใส่การคำนวณของคุณ เช่น 4 * 6 = 24"
+                        placeholder="ใส่การคำนวณของคุณ เช่น 3 * 8"
                         class="w-full text-lg py-4 px-4 border-2 border-blue-200 focus:border-blue-400 rounded-lg outline-none"
                     >
 
@@ -199,8 +215,9 @@
             </div>
 
             <div class="mt-4 text-center text-gray-600 bg-white rounded-lg p-4 shadow-md">
-                <p>ใช้เลขทั้ง 4 ตัวและเครื่องหมาย +, -, *, / เพื่อให้ได้ผลลัพธ์เป็น 24</p>
-                <p class="mt-2 font-medium">ตัวอย่าง: 4 * 6 = 24</p>
+                <p>ใช้เลขทั้ง 4 ตัวที่กำหนด ตัวใดตัวหนึ่งคูณกันให้ได้ 24</p>
+                <p class="mt-2">ตัวอย่าง: สำหรับเลข [3, 3, 8, 8] ให้เลือก 3 * 8</p>
+                <p class="mt-2 font-medium">(ต้องใช้เลขจากที่กำหนดให้เท่านั้น)</p>
             </div>
         </div>
     </div>

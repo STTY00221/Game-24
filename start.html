@@ -51,16 +51,20 @@
 
         function evaluateExpression(expression) {
             try {
-                // ลบช่องว่างและ = ออก
-                expression = expression.replace(/\s+/g, '').replace(/=/g, '');
+                // ลบช่องว่าง แต่อนุญาตวงเล็บและเครื่องหมายทุกประเภท
+                let cleanExpr = expression.replace(/\s+/g, '').replace(/=/g, '');
                 
-                // แยกตัวเลขและเครื่องหมาย
-                const numbers = expression.match(/\d+/g)?.map(Number) || [];
-                const operators = expression.match(/[\+\-\*\/]/g) || [];
+                // เช็คว่ามีแต่ตัวเลข เครื่องหมาย และวงเล็บที่ถูกต้อง
+                if (!/^[\d\+\-\*\/\(\)]+$/.test(cleanExpr)) {
+                    return { isValid: false, message: 'กรุณาใช้เฉพาะตัวเลข เครื่องหมาย และวงเล็บ' };
+                }
+
+                // แยกตัวเลขออกมา (รวมถึงในวงเล็บ)
+                const numbers = cleanExpr.match(/\d+/g)?.map(Number) || [];
                 
-                // ตรวจสอบจำนวนตัวเลขและเครื่องหมาย
-                if (numbers.length !== 4 || operators.length !== 3) {
-                    return { isValid: false, message: 'กรุณาใช้ตัวเลขทั้ง 4 ตัวและเครื่องหมาย 3 ตัว' };
+                // ตรวจสอบจำนวนตัวเลข
+                if (numbers.length !== 4) {
+                    return { isValid: false, message: 'กรุณาใช้ตัวเลขทั้ง 4 ตัวที่กำหนด' };
                 }
 
                 // ตรวจสอบว่าตัวเลขที่ใช้อยู่ในโจทย์
@@ -73,7 +77,7 @@
                 }
 
                 // คำนวณผลลัพธ์
-                const result = eval(expression);
+                const result = eval(cleanExpr);
                 
                 if (Math.abs(result - 24) < 0.000001) {
                     return { isValid: true, result: 24 };
@@ -81,7 +85,7 @@
                 
                 return { isValid: false, message: 'ลองใหม่อีกครั้ง ผลลัพธ์ต้องเท่ากับ 24' };
             } catch (error) {
-                return { isValid: false, message: 'รูปแบบการคำนวณไม่ถูกต้อง' };
+                return { isValid: false, message: 'รูปแบบการคำนวณไม่ถูกต้อง กรุณาตรวจสอบวงเล็บและเครื่องหมาย' };
             }
         }
 
@@ -199,7 +203,7 @@
                     <input
                         type="text"
                         id="answer-input"
-                        placeholder="ใส่การคำนวณของคุณ เช่น 8 * 3 + 3 - 3"
+                        placeholder="ใส่การคำนวณของคุณ เช่น (3+3)*8-8 หรือ 8*3+3-3"
                         class="w-full text-lg py-4 px-4 border-2 border-blue-200 focus:border-blue-400 rounded-lg outline-none"
                     >
 
@@ -215,9 +219,9 @@
             </div>
 
             <div class="mt-4 text-center text-gray-600 bg-white rounded-lg p-4 shadow-md">
-                <p>ใช้เลขทั้ง 4 ตัวที่กำหนดและเครื่องหมาย +, -, *, / เพื่อให้ได้ 24</p>
-                <p class="mt-2">ตัวอย่าง: สำหรับเลข [3, 3, 8, 8] สามารถใช้ 8 * 3 + 3 - 3 = 24</p>
-                <p class="mt-2 font-medium">(ต้องใช้เลขทั้ง 4 ตัวและเครื่องหมาย 3 ตัว)</p>
+                <p>ใช้เลขทั้ง 4 ตัวที่กำหนดให้ คำนวณให้ได้ผลลัพธ์เป็น 24</p>
+                <p class="mt-2">ตัวอย่าง: (3+3)*8-8 หรือ 8*3+3-3</p>
+                <p class="mt-2 font-medium">(สามารถใช้วงเล็บและเว้นวรรคได้ตามต้องการ)</p>
             </div>
         </div>
     </div>

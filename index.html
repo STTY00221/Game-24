@@ -1,1 +1,94 @@
-# Game-24
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกม 24 - เมนูหลัก</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
+        * {
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-bg {
+            background: linear-gradient(to bottom right, #dbeafe, #f3e8ff, #fce7f3);
+        }
+        .gradient-button {
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+        }
+        .gradient-button:hover {
+            background: linear-gradient(to right, #1d4ed8, #6d28d9);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+        <div class="max-w-md w-full">
+            <div class="bg-white rounded-2xl shadow-xl border-2 border-blue-200 overflow-hidden">
+                <div class="p-8">
+                    <div class="text-center space-y-6">
+                        <h1 class="text-4xl font-bold gradient-text">
+                            เกม 24
+                        </h1>
+                        
+                        <div class="space-y-2">
+                            <p class="text-xl text-gray-700">
+                                ฝึกทักษะการคิดคำนวณ
+                            </p>
+                            <p class="text-gray-600">
+                                ใช้เลข 4 ตัว คำนวณให้ได้ผลลัพธ์ 24
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <a href="/game" 
+                               class="gradient-button block w-full py-6 rounded-xl text-xl text-white font-medium hover:shadow-lg transition duration-200">
+                                เริ่มเกม
+                            </a>
+                            
+                            <a href="/tutorial" 
+                               class="block w-full py-3 rounded-xl text-lg text-blue-600 border-2 border-blue-200 hover:bg-blue-50 transition duration-200">
+                                วิธีเล่น
+                            </a>
+                        </div>
+
+                        <div class="pt-6 border-t border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-700 mb-2">
+                                ผู้จัดทำ
+                            </h2>
+                            <div class="space-y-1 text-gray-600">
+                                <p class="font-medium">นายวีรภัทร ภานุศรี</p>
+                                <p>ม.4/4 เลขที่ 17</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-500">
+                    พัฒนาโดยใช้ React และ Tailwind CSS
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth hover effect for buttons
+        document.querySelectorAll('a').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                button.style.transform = 'translateY(-2px)';
+            });
+            button.addEventListener('mouseout', () => {
+                button.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

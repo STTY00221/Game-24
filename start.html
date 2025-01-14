@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกม 24 - เริ่มเกม</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script>
+        // ข้อมูลด่าน
+        const levels = [
+            { numbers: [3, 3, 8, 8] },
+            { numbers: [2, 4, 6, 8] },
+            { numbers: [1, 4, 6, 6] },
+            { numbers: [2, 3, 4, 12] },
+            { numbers: [4, 6, 6, 6] },
+            { numbers: [1, 2, 8, 8] },
+            { numbers: [3, 3, 4, 8] },
+            { numbers: [2, 3, 6, 9] },
+            { numbers: [2, 4, 8, 8] },
+            { numbers: [3, 3, 6, 8] },
+            { numbers: [1, 3, 6, 8] },
+            { numbers: [2, 3, 7, 8] },
+            { numbers: [4, 4, 6, 7] },
+            { numbers: [2, 4, 7, 7] },
+            { numbers: [1, 6, 6, 8] },
+            { numbers: [2, 5, 7, 7] },
+            { numbers: [3, 4, 6, 8] },
+            { numbers: [2, 6, 7, 7] },
+            { numbers: [1, 4, 8, 8] },
+            { numbers: [3, 5, 6, 8] }
+        ];
+
+        let currentLevel = 0;
+        let timeLeft = 180;
+        let timer;
+        let isGameActive = true;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function evaluateExpression(expression) {
+            try {
+                expression = expression.replace(/\s+/g, '').replace(/=/g, '');
+                const numbers = expression.match(/\d+/g)?.map(Number) || [];
+                const operators = expression.match(/[\+\-\*\/]/g) || [];
+                
+                if (numbers.length !== 4 || operators.length !== 3) {
+                    return { isValid: false, message: 'กรุณาใช้ตัวเลขทั้ง 4 ตัว' };
+                }
+
+                const sortedInput = [...numbers].sort((a, b) => a - b);
+                const sortedLevel = [...levels[currentLevel].numbers].sort((a, b) => a - b);
+                
+                if (JSON.stringify(sortedInput) !== JSON.stringify(sortedLevel)) {
+                    return { isValid: false, message: 'กรุณาใช้ตัวเลขที่กำหนดให้เท่านั้น' };
+                }
+
+                const result = eval(expression);
+                
+                if (Math.abs(result - 24) < 0.000001) {
+                    return { isValid: true, result: 24 };
+                }
+                
+                return { isValid: false, message: 'ลองใหม่อีกครั้ง ผลลัพธ์ต้องเท่ากับ 24' };
+            } catch (error) {
+                return { isValid: false, message: 'รูปแบบการคำนวณไม่ถูกต้อง' };
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = formatTime(timeLeft);
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    isGameActive = false;
+                    document.getElementById('timeout-dialog').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function updateGame() {
+            document.getElementById('level-number').textContent = currentLevel + 1;
+            const numbersContainer = document.getElementById('numbers-container');
+            numbersContainer.innerHTML = '';
+            
+            levels[currentLevel].numbers.forEach(number => {
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'text-white text-2xl font-bold rounded-xl p-4 text-center shadow-md aspect-square flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 transform hover:scale-105 transition-transform duration-200';
+                numberDiv.textContent = number;
+                numbersContainer.appendChild(numberDiv);
+            });
+
+            document.getElementById('answer-input').value = '';
+            document.getElementById('message').textContent = '';
+            timeLeft = 180;
+            isGameActive = true;
+            startTimer();
+        }
+
+        function checkAnswer() {
+            if (!isGameActive) return;
+
+            const answer = document.getElementById('answer-input').value;
+            const result = evaluateExpression(answer);
+            const messageElement = document.getElementById('message');
+            
+            if (result.isValid) {
+                messageElement.textContent = 'ยอดเยี่ยม! 🎉';
+                messageElement.className = 'text-green-600 font-medium';
+                
+                if (currentLevel < levels.length - 1) {
+                    currentLevel++;
+                    setTimeout(updateGame, 1500);
+                } else {
+                    clearInterval(timer);
+                    isGameActive = false;
+                    messageElement.textContent = 'ยินดีด้วย! คุณผ่านทุกด่านแล้ว! 🏆';
+                }
+            } else {
+                messageElement.textContent = result.message;
+                messageElement.className = 'text-red-600 font-medium';
+            }
+        }
+
+        function retryLevel() {
+            document.getElementById('timeout-dialog').classList.add('hidden');
+            updateGame();
+        }
+
+        window.onload = function() {
+            updateGame();
+            
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        };
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto">
+            <a href="index.html" 
+               class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                กลับหน้าหลัก
+            </a>
+
+            <div class="bg-white rounded-xl shadow-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            ด่านที่ <span id="level-number">1</span>
+                        </h1>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div id="timer" class="text-xl font-mono font-bold text-blue-500">
+                            3:00
+                        </div>
+                    </div>
+                </div>
+
+                <div id="numbers-container" class="grid grid-cols-2 gap-3 mb-6">
+                    <!-- ตัวเลขจะถูกเพิ่มด้วย JavaScript -->
+                </div>
+
+                <div class="space-y-3">
+                    <input
+                        type="text"
+                        id="answer-input"
+                        placeholder="ใส่การคำนวณของคุณ เช่น 4 * 6 = 24"
+                        class="w-full text-lg py-4 px-4 border-2 border-blue-200 focus:border-blue-400 rounded-lg outline-none"
+                    >
+
+                    <button 
+                        onclick="checkAnswer()"
+                        class="w-full py-4 text-lg text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg transition-all duration-200"
+                    >
+                        ตรวจคำตอบ
+                    </button>
+
+                    <p id="message" class="text-center font-medium"></p>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center text-gray-600 bg-white rounded-lg p-4 shadow-md">
+                <p>ใช้เลขทั้ง 4 ตัวและเครื่องหมาย +, -, *, / เพื่อให้ได้ผลลัพธ์เป็น 24</p>
+                <p class="mt-2 font-medium">ตัวอย่าง: 4 * 6 = 24</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog เมื่อหมดเวลา -->
+    <div id="timeout-dialog" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-sm w-full">
+            <h3 class="text-xl font-bold text-red-500 mb-4">
+                หมดเวลา!
+            </h3>
+            <p class="text-lg text-gray-700 mb-6">
+                เวลาของด่านนี้หมดแล้ว คุณต้องการลองใหม่หรือไม่?
+            </p>
+            <button 
+                onclick="retryLevel()"
+                class="w-full py-4 text-lg text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg transition-all duration-200"
+            >
+                ลองใหม่
+            </button>
+        </div>
+    </div>
+</body>
+</html>
